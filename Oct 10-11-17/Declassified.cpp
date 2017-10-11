@@ -4,6 +4,7 @@
 #include<stdlib.h>
 #include<allegro5\allegro_primitives.h>
 #include<stdio.h>
+#include<allegro5\allegro_image.h>
 
 using namespace std;
 
@@ -88,7 +89,7 @@ int main(int argc, char **argv)
 			//if the up button is pressed AND we're still below the top wall,
 			//move the box "up" by 4 pixels
 			if (isOnSolidGround) {
-				velocity_vx = .90;
+				velocity_vx = .00;
 				if (key[0]) {
 					velocity_vy = -10;
 					isOnSolidGround == 0;
