@@ -7,13 +7,16 @@
 #include<allegro5\allegro_image.h>
 
 using namespace std;
-
+const int screen_W = 640;
+const int screen_H = 480;
+const int square_size = 32;
 int main(int argc, char **argv)
 {
 	ALLEGRO_DISPLAY *display = NULL;
 	ALLEGRO_EVENT_QUEUE *event_queue = NULL;
 	ALLEGRO_TIMER *timer = NULL;
 	ALLEGRO_BITMAP *square = NULL;
+	ALLEGRO_BITMAP *background = NULL;
 
 
 
@@ -40,16 +43,30 @@ int main(int argc, char **argv)
 	//this controls our game loop
 	bool doexit = false;
 
+	int WorldHeight = 480;
+	int WorldWidth = 1920;
+
+	int cameraX = 0;
+	int cameraY = 0;
+
 	al_init();
 
 	//get the keyboard ready to use
 	al_install_keyboard();
 
+	al_init_primitives_addon();
+
+	al_init_image_addon();
+
 	timer = al_create_timer(.02);
 
-	display = al_create_display(640, 480);
+	display = al_create_display(screen_W, screen_H);
 
-	square = al_create_bitmap(32, 32);
+	square = al_create_bitmap(square_size, square_size);
+
+
+
+	background = al_load_bitmap("map.png");
 
 	al_set_target_bitmap(square);
 
@@ -109,6 +126,25 @@ int main(int argc, char **argv)
 			if (key[3] && square_x <= 640 - 32) {
 				velocity_vx = 4;
 			}
+			
+			//Code for later use
+			//int x = object.x - cameraX;
+			//int y = object.y - cameraY;
+
+			//make camera follow the player
+			cameraX = square_x - 640 / 2;
+			cameraY = square_y - 480 / 2;
+
+			if (cameraX < 0)
+				cameraX = 0;
+			if (cameraY < 0)
+				cameraY = 0;
+			if (cameraX > WorldWidth - screen_W)
+				cameraX = WorldWidth - screen_W;
+			if (cameraY > WorldHeight - screen_H)
+				cameraY = WorldHeight - screen_H;
+
+
 			if (isOnSolidGround == 0) {
 				velocity_vy += .5;
 			}
@@ -210,9 +246,13 @@ int main(int argc, char **argv)
 			//paint black over the old screen, so the old square dissapears
 			al_clear_to_color(al_map_rgb(0, 0, 0));
 
-			//the algorithm above just changes the x and y coordinates
+			//the algo rithm above just changes the x and y coordinates
 			//here's where the bitmap is actually drawn somewhere else
-			al_draw_bitmap(square, square_x, square_y, 0);
+			al_draw_bitmap_region(background, cameraX, cameraY, 640, 480, 0, 0, 0);
+			al_draw_bitmap(square, square_x - cameraX, square_y - cameraY, 0);
+		
+
+			//al_draw_bitmap_region(square, square_x - cameraX, square_y - cameraY,640,480,0,0,0);
 			
 
 			al_flip_display();
