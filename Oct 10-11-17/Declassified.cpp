@@ -100,7 +100,7 @@ int main(int argc, char **argv)
 			}
 			//if the left button is pressed AND we're still right of the left wall
 			//move the box left by 4 pixels
-			if (key[2] && square_x >= 0) {
+			if (key[2] && square_x >= 4) {
 				velocity_vx = -4;
 			}
 
@@ -112,16 +112,31 @@ int main(int argc, char **argv)
 			if (isOnSolidGround == 0) {
 				velocity_vy += .5;
 			}
+
+
+
+			//if you're on the ground (or lower) set isOnSolidGround to TRUE
 			if (square_y > 480 - 32) {
 				square_y = 480 - 32;
 				velocity_vy = 0;
 				isOnSolidGround = 1;
 			}
+			//otherwise you're NOT on solid ground
 			else {
 				isOnSolidGround = 0;
 			}
+
+
+
+
 			square_x += velocity_vx;
 			square_y += velocity_vy;
+
+
+			//stop the character from walking off the screen to the left
+			if (square_x < 0 && isOnSolidGround == 0) {
+				square_x = 0;
+			}
 
 			//redraw at every tick of the timer
 			redraw = true;
