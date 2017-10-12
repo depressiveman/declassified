@@ -123,7 +123,7 @@ int main(int argc, char **argv)
 
 			//if the left button is pressed AND we're still left of the right wall
 			//move the box right by 4 pixels
-			if (key[3] && square_x <= 640 - 32) {
+			if (key[3] && square_x <= WorldWidth - 32) {
 				velocity_vx = 4;
 			}
 			
