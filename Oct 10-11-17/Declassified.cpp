@@ -1,5 +1,7 @@
 #include<iostream>
 #include<allegro5\allegro.h>
+#include<allegro5\allegro_font.h>
+#include<allegro5\allegro_ttf.h>
 #include<time.h>
 #include<stdlib.h>
 #include <allegro5\allegro_audio.h>
@@ -12,6 +14,8 @@ using namespace std;
 const int screen_W = 640;
 const int screen_H = 480;
 const int square_size = 32;
+
+enum STATES { DEATH,  MAP, INTRO }; //death is 0, map is 1, intro is 2.
 int main(int argc, char **argv)
 {
 	ALLEGRO_DISPLAY *display = NULL;
@@ -23,7 +27,7 @@ int main(int argc, char **argv)
 	ALLEGRO_SAMPLE_INSTANCE *instance1 = NULL;
 
 
-
+	int state = 2;
 	//these two variables hold the x and y positions of the square
 	//initalize these variables to where you want your square to start
 	float square_x = 50;
@@ -38,7 +42,7 @@ int main(int argc, char **argv)
 
 	//here's our key states. they're all starting as "false" because nothing has been pressed yet.
 	//the first slot represents "up", then "down", "left" and "right"
-	bool key[4] = { false, false, false, false };
+	bool key[5] = { false, false, false, false,false };
 
 
 	//don't redraw until an event happens
@@ -86,6 +90,12 @@ int main(int argc, char **argv)
 
 	al_attach_sample_instance_to_mixer(instance1, al_get_default_mixer());
 
+	al_init_font_addon();
+	al_init_ttf_addon();
+	ALLEGRO_FONT *font = al_load_ttf_font("pirulen.ttf", 32, 0);
+
+	al_convert_mask_to_alpha(square, al_map_rgb(255, 255, 255));
+
 	al_set_target_bitmap(square);
 
 	al_clear_to_color(al_map_rgb(255, 255, 255));
@@ -123,6 +133,13 @@ int main(int argc, char **argv)
 		if (ev.type == ALLEGRO_EVENT_TIMER) {
 			//if the up button is pressed AND we're still below the top wall,
 			//move the box "up" by 4 pixels
+
+			if (state == INTRO) {
+				if (key[4] == true)
+					state = 1;
+			}
+
+
 			if (isOnSolidGround) {
 				velocity_vx = .00;
 				if (key[0]) {
@@ -232,6 +249,9 @@ int main(int argc, char **argv)
 			case ALLEGRO_KEY_RIGHT:
 				key[3] = true;
 				break;
+			case ALLEGRO_KEY_ENTER:
+				key[4] = true;
+				break;
 			}
 		}
 		//has something been released on the keyboard?
@@ -251,6 +271,9 @@ int main(int argc, char **argv)
 
 			case ALLEGRO_KEY_RIGHT:
 				key[3] = false;
+				break;
+			case ALLEGRO_KEY_ENTER:
+				key[4] = false;
 				break;
 
 			case ALLEGRO_KEY_ESCAPE:
@@ -273,12 +296,19 @@ int main(int argc, char **argv)
 
 			//the algo rithm above just changes the x and y coordinates
 			//here's where the bitmap is actually drawn somewhere else
-			al_draw_bitmap_region(background, cameraX, cameraY, 640, 480, 0, 0, 0);
-			al_draw_bitmap(square, square_x - cameraX, square_y - cameraY, 0);
-		
+			if (state == MAP) {
 
-			//al_draw_bitmap_region(square, square_x - cameraX, square_y - cameraY,640,480,0,0,0);
-			
+
+
+				al_draw_bitmap_region(background, cameraX, cameraY, 640, 480, 0, 0, 0);
+				al_draw_bitmap(square, square_x - cameraX, square_y - cameraY, 0);
+
+
+				//al_draw_bitmap_region(square, square_x - cameraX, square_y - cameraY,640,480,0,0,0);
+			}
+			if (state == INTRO) {
+				al_draw_text(font, al_map_rgb(255, 0, 0), 100, 100, 0, "I hate my life");
+			}
 
 			al_flip_display();
 		}
