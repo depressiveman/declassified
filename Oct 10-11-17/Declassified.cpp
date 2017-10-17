@@ -2,6 +2,8 @@
 #include<allegro5\allegro.h>
 #include<time.h>
 #include<stdlib.h>
+#include <allegro5\allegro_audio.h>
+#include <allegro5\allegro_acodec.h>
 #include<allegro5\allegro_primitives.h>
 #include<stdio.h>
 #include<allegro5\allegro_image.h>
@@ -17,6 +19,8 @@ int main(int argc, char **argv)
 	ALLEGRO_TIMER *timer = NULL;
 	ALLEGRO_BITMAP *square = NULL;
 	ALLEGRO_BITMAP *background = NULL;
+	ALLEGRO_SAMPLE *sample1 = NULL;
+	ALLEGRO_SAMPLE_INSTANCE *instance1 = NULL;
 
 
 
@@ -54,6 +58,10 @@ int main(int argc, char **argv)
 	//get the keyboard ready to use
 	al_install_keyboard();
 
+	al_install_audio();
+
+	al_init_acodec_addon();
+
 	al_init_primitives_addon();
 
 	al_init_image_addon();
@@ -67,6 +75,16 @@ int main(int argc, char **argv)
 
 
 	background = al_load_bitmap("map.png");
+
+	al_reserve_samples(5);
+
+	sample1 = al_load_sample("soviet-anthem1944.wav");
+
+	instance1 = al_create_sample_instance(sample1);
+
+	al_set_sample_instance_playmode(instance1, ALLEGRO_PLAYMODE_LOOP);
+
+	al_attach_sample_instance_to_mixer(instance1, al_get_default_mixer());
 
 	al_set_target_bitmap(square);
 
@@ -89,7 +107,7 @@ int main(int argc, char **argv)
 
 	al_start_timer(timer);
 
-
+	al_play_sample_instance(instance1);
 
 
 	//so the game loop is set to act on "ticks" of the timer OR keyboard presses 
@@ -152,8 +170,8 @@ int main(int argc, char **argv)
 
 
 			//if you're on the ground (or lower) set isOnSolidGround to TRUE
-			if (square_y > 480 - 32) {
-				square_y = 480 - 32;
+			if (square_y > 480 - 72) {
+				square_y = 480 - 72;
 				velocity_vy = 0;
 				isOnSolidGround = 1;
 			}
@@ -172,6 +190,9 @@ int main(int argc, char **argv)
 			//stop the character from walking off the screen to the left
 			if (square_x < 0 && isOnSolidGround == 0) {
 				square_x = 0;
+			}
+			else if (square_x > 1920 && isOnSolidGround == 0) {
+				square_x = 1920;
 			}
 
 			//redraw at every tick of the timer
@@ -232,6 +253,10 @@ int main(int argc, char **argv)
 				key[3] = false;
 				break;
 
+			case ALLEGRO_KEY_ESCAPE:
+				doexit = true;
+				break;
+
 				//kill the program if someone presses escape
 				//case ALLEGRO_KEY_ESCAPE:
 				//ESC = true;
@@ -258,7 +283,8 @@ int main(int argc, char **argv)
 			al_flip_display();
 		}
 	}
-
+	al_destroy_sample(sample1);
+	al_destroy_sample_instance(instance1);
 	al_destroy_bitmap(square);
 	al_destroy_timer(timer);
 	al_destroy_display(display);
