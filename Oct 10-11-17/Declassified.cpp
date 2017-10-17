@@ -52,7 +52,7 @@ int main(int argc, char **argv)
 	bool doexit = false;
 
 	int WorldHeight = 480;
-	int WorldWidth = 1920;
+	int WorldWidth = 5000;
 
 	int cameraX = 0;
 	int cameraY = 0;
@@ -78,7 +78,7 @@ int main(int argc, char **argv)
 
 
 
-	background = al_load_bitmap("map.png");
+	background = al_load_bitmap("map level 1.png");
 
 	al_reserve_samples(5);
 
@@ -208,8 +208,8 @@ int main(int argc, char **argv)
 			if (square_x < 0 && isOnSolidGround == 0) {
 				square_x = 0;
 			}
-			else if (square_x > 1920 && isOnSolidGround == 0) {
-				square_x = 1920;
+			else if (square_x > 5000 && isOnSolidGround == 0) {
+				square_x = 5000;
 			}
 
 			//redraw at every tick of the timer
