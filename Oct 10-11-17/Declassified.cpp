@@ -15,7 +15,7 @@ const int screen_W = 640;
 const int screen_H = 480;
 const int square_size = 32;
 
-enum STATES { DEATH,  MAP, INTRO }; //death is 0, map is 1, intro is 2.
+enum STATES { DEATH,  MAP, INTRO, MAP2, MAP3 }; //death is 0, map is 1, intro is 2,MAP@ is 3, MAP3 is 4.
 int main(int argc, char **argv)
 {
 	ALLEGRO_DISPLAY *display = NULL;
@@ -25,6 +25,8 @@ int main(int argc, char **argv)
 	ALLEGRO_BITMAP *background = NULL;
 	ALLEGRO_SAMPLE *sample1 = NULL;
 	ALLEGRO_SAMPLE_INSTANCE *instance1 = NULL;
+	ALLEGRO_BITMAP *background2 = NULL;
+	ALLEGRO_BITMAP *background3 = NULL;
 
 
 	int state = 2;
@@ -80,6 +82,10 @@ int main(int argc, char **argv)
 
 	background = al_load_bitmap("map level 1.png");
 
+	background2 = al_load_bitmap("map level 2.png");
+
+	background3 = al_load_bitmap("map level 3.png");
+
 	al_reserve_samples(5);
 
 	sample1 = al_load_sample("soviet-anthem1944.wav");
@@ -117,7 +123,7 @@ int main(int argc, char **argv)
 
 	al_start_timer(timer);
 
-	al_play_sample_instance(instance1);
+
 
 
 	//so the game loop is set to act on "ticks" of the timer OR keyboard presses 
@@ -139,79 +145,247 @@ int main(int argc, char **argv)
 					state = 1;
 			}
 
+			if (state == MAP) {
 
-			if (isOnSolidGround) {
-				velocity_vx = .00;
-				if (key[0]) {
-					velocity_vy = -10;
-					isOnSolidGround == 0;
+
+				if (isOnSolidGround) {
+					velocity_vx *= .00; //slide 
+					if (key[0]) {
+						velocity_vy = -10;
+						isOnSolidGround == 0;
+					}
 				}
-			}
-			else {
-				isOnSolidGround == 1;
-			}
-			//if the left button is pressed AND we're still right of the left wall
-			//move the box left by 4 pixels
-			if (key[2] && square_x >= 4) {
-				velocity_vx = -4;
-			}
+				else {
+					isOnSolidGround == 1;
+				}
+				//if the left button is pressed AND we're still right of the left wall
+				//move the box left by 4 pixels
+				if (key[2] && square_x >= 4) {
+					velocity_vx = -8;
+				}
 
-			//if the left button is pressed AND we're still left of the right wall
-			//move the box right by 4 pixels
-			if (key[3] && square_x <= WorldWidth - 32) {
-				velocity_vx = 4;
-			}
-			
-			//Code for later use
-			//int x = object.x - cameraX;
-			//int y = object.y - cameraY;
+				//if the left button is pressed AND we're still left of the right wall
+				//move the box right by 4 pixels
+				if (key[3] && square_x <= WorldWidth - 32) {
+					velocity_vx = 8;
+				}
 
-			//make camera follow the player
-			cameraX = square_x - 640 / 2;
-			cameraY = square_y - 480 / 2;
+				//pseudocde for stopping forward movement on jump
+				//check if key is FALSE
+				//if false, set x velocity to 0
+				
 
-			if (cameraX < 0)
-				cameraX = 0;
-			if (cameraY < 0)
-				cameraY = 0;
-			if (cameraX > WorldWidth - screen_W)
-				cameraX = WorldWidth - screen_W;
-			if (cameraY > WorldHeight - screen_H)
-				cameraY = WorldHeight - screen_H;
+				//Code for later use
+				//int x = object.x - cameraX;
+				//int y = object.y - cameraY;
 
+				//make camera follow the player
+				cameraX = square_x - 640 / 2;
+				cameraY = square_y - 480 / 2;
 
-			if (isOnSolidGround == 0) {
-				velocity_vy += .5;
-			}
-
+				if (cameraX < 0)
+					cameraX = 0;
+				if (cameraY < 0)
+					cameraY = 0;
+				if (cameraX > WorldWidth - screen_W)
+					cameraX = WorldWidth - screen_W;
+				if (cameraY > WorldHeight - screen_H)
+					cameraY = WorldHeight - screen_H;
 
 
-			//if you're on the ground (or lower) set isOnSolidGround to TRUE
-			if (square_y > 480 - 72) {
-				square_y = 480 - 72;
-				velocity_vy = 0;
-				isOnSolidGround = 1;
-			}
-			//otherwise you're NOT on solid ground
-			else {
-				isOnSolidGround = 0;
-			}
+				if (isOnSolidGround == 0) {
+					velocity_vy += .5;
+				}
 
 
 
+				//if you're on the ground (or lower) set isOnSolidGround to TRUE
+				if (square_y > 480 - 72) {
+					square_y = 480 - 72;
+					velocity_vy = 0;
+					isOnSolidGround = 1;
+				}
+				//otherwise you're NOT on solid ground
+				else {
+					isOnSolidGround = 0;
+				}
 
-			square_x += velocity_vx;
-			square_y += velocity_vy;
 
 
-			//stop the character from walking off the screen to the left
-			if (square_x < 0 && isOnSolidGround == 0) {
-				square_x = 0;
-			}
-			else if (square_x > 5000 && isOnSolidGround == 0) {
-				square_x = 5000;
-			}
 
+				square_x += velocity_vx;
+				square_y += velocity_vy;
+
+
+				//stop the character from walking off the screen to the left
+				if (square_x < 0 && isOnSolidGround == 0) {
+					square_x = 0;
+				}
+				else if (square_x > 5000 && isOnSolidGround == 0) {
+					state = 3;
+					square_x = 50;
+					square_y = 50;
+				}
+			}//end state MAP
+
+
+			if (state == MAP2) {
+				
+
+
+				if (isOnSolidGround) {
+					velocity_vx = .00;
+					if (key[0]) {
+						velocity_vy = -10;
+						isOnSolidGround == 0;
+					}
+				}
+				else {
+					isOnSolidGround == 1;
+				}
+				//if the left button is pressed AND we're still right of the left wall
+				//move the box left by 4 pixels
+				if (key[2] && square_x >= 4) {
+					velocity_vx = -4;
+				}
+
+				//if the left button is pressed AND we're still left of the right wall
+				//move the box right by 4 pixels
+				if (key[3] && square_x <= WorldWidth - 32) {
+					velocity_vx = 4;
+				}
+
+				//Code for later use
+				//int x = object.x - cameraX;
+				//int y = object.y - cameraY;
+
+				//make camera follow the player
+				cameraX = square_x - 640 / 2;
+				cameraY = square_y - 480 / 2;
+
+				if (cameraX < 0)
+					cameraX = 0;
+				if (cameraY < 0)
+					cameraY = 0;
+				if (cameraX > WorldWidth - screen_W)
+					cameraX = WorldWidth - screen_W;
+				if (cameraY > WorldHeight - screen_H)
+					cameraY = WorldHeight - screen_H;
+
+
+				if (isOnSolidGround == 0) {
+					velocity_vy += .5;
+				}
+
+
+
+				//if you're on the ground (or lower) set isOnSolidGround to TRUE
+				if (square_y > 480 - 72) {
+					square_y = 480 - 72;
+					velocity_vy = 0;
+					isOnSolidGround = 1;
+				}
+				//otherwise you're NOT on solid ground
+				else {
+					isOnSolidGround = 0;
+				}
+
+
+
+
+				square_x += velocity_vx;
+				square_y += velocity_vy;
+
+
+				//stop the character from walking off the screen to the left
+				if (square_x < 0 && isOnSolidGround == 0) {
+					square_x = 0;
+				}
+				else if (square_x > 5000 && isOnSolidGround == 0) {
+					square_x = 50;
+					square_y = 50;
+					state = 4;
+				}
+			}//end state MAP2
+
+
+			if (state == MAP3) {
+
+
+
+				if (isOnSolidGround) {
+					velocity_vx = .00;
+					if (key[0]) {
+						velocity_vy = -10;
+						isOnSolidGround == 0;
+					}
+				}
+				else {
+					isOnSolidGround == 1;
+				}
+				//if the left button is pressed AND we're still right of the left wall
+				//move the box left by 4 pixels
+				if (key[2] && square_x >= 4) {
+					velocity_vx = -4;
+				}
+
+				//if the left button is pressed AND we're still left of the right wall
+				//move the box right by 4 pixels
+				if (key[3] && square_x <= WorldWidth - 32) {
+					velocity_vx = 4;
+				}
+
+				//Code for later use
+				//int x = object.x - cameraX;
+				//int y = object.y - cameraY;
+
+				//make camera follow the player
+				cameraX = square_x - 640 / 2;
+				cameraY = square_y - 480 / 2;
+
+				if (cameraX < 0)
+					cameraX = 0;
+				if (cameraY < 0)
+					cameraY = 0;
+				if (cameraX > WorldWidth - screen_W)
+					cameraX = WorldWidth - screen_W;
+				if (cameraY > WorldHeight - screen_H)
+					cameraY = WorldHeight - screen_H;
+
+
+				if (isOnSolidGround == 0) {
+					velocity_vy += .5;
+				}
+
+
+
+				//if you're on the ground (or lower) set isOnSolidGround to TRUE
+				if (square_y > 480 - 72) {
+					square_y = 480 - 72;
+					velocity_vy = 0;
+					isOnSolidGround = 1;
+				}
+				//otherwise you're NOT on solid ground
+				else {
+					isOnSolidGround = 0;
+				}
+
+
+
+
+				square_x += velocity_vx;
+				square_y += velocity_vy;
+
+
+				//stop the character from walking off the screen to the left
+				if (square_x < 0 && isOnSolidGround == 0) {
+					square_x = 0;
+				}
+				else if (square_x > 5000 && isOnSolidGround == 0) {
+					square_x = 5000;
+					state = 3;
+				}
+			}//end state MAP3
 			//redraw at every tick of the timer
 			redraw = true;
 		}
@@ -297,7 +471,7 @@ int main(int argc, char **argv)
 			//the algo rithm above just changes the x and y coordinates
 			//here's where the bitmap is actually drawn somewhere else
 			if (state == MAP) {
-
+				al_play_sample_instance(instance1);
 
 
 				al_draw_bitmap_region(background, cameraX, cameraY, 640, 480, 0, 0, 0);
@@ -305,6 +479,20 @@ int main(int argc, char **argv)
 
 
 				//al_draw_bitmap_region(square, square_x - cameraX, square_y - cameraY,640,480,0,0,0);
+			}
+			if (state == MAP2) {
+				
+
+				al_draw_bitmap_region(background2, cameraX, cameraY, 640, 480, 0, 0, 0);
+				al_draw_bitmap(square, square_x - cameraX, square_y - cameraY, 0);
+				
+			}
+			if (state == MAP3) {
+
+
+
+				al_draw_bitmap_region(background3, cameraX, cameraY, 640, 480, 0, 0, 0);
+				al_draw_bitmap(square, square_x - cameraX, square_y - cameraY, 0);
 			}
 			if (state == INTRO) {
 				al_draw_text(font, al_map_rgb(255, 0, 0), 100, 100, 0, "I hate my life");
